@@ -2,9 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import re
-from map import month_map
+from maps import month_map
+from arguments import get_year
 
-year = 2024
+year = get_year()
 url = f"https://tanggalan.com/{year}"
 
 response = requests.get(url)
@@ -19,7 +20,6 @@ uls = soup.find_all('ul')
 for ul in uls:
     first_li = ul.find_all('li')[0]
     month_year = first_li.find('a').get_text().strip()
-    print(month_year)
     match = re.match(r'([a-zA-Z]+)(\d+)', month_year)
     if match:
         month_name = match.group(1).lower()

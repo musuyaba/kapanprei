@@ -1,12 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
+import json
 
-url = 'https://tanggalan.com/2024'
+year = 2024
+url = f"https://tanggalan.com/{year}"
 
 response = requests.get(url)
 response.raise_for_status() 
 
 soup = BeautifulSoup(response.content, 'html.parser')
+
+holidays = []
 
 uls = soup.find_all('ul')
 
@@ -23,4 +27,11 @@ for ul in uls:
             if len(tds) >= 2:
                 date = tds[0].get_text()
                 holiday_name = tds[1].get_text()
-                print(f'Date: {date}, Holiday: {holiday_name}')
+                holidays.append({'date': date, 'holiday': holiday_name})
+
+
+# Save the holidays data to a JSON file
+with open(f'{year}.json', 'w', encoding='utf-8') as json_file:
+    json.dump(holidays, json_file, ensure_ascii=False, indent=4)
+
+print(f'Holidays data saved to {year}.json')

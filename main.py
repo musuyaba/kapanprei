@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import re
 
 year = 2024
 url = f"https://tanggalan.com/{year}"
@@ -15,6 +16,14 @@ holidays = []
 uls = soup.find_all('ul')
 
 for ul in uls:
+    first_li = ul.find_all('li')[0]
+    month_year = first_li.find('a').get_text().strip()
+    print(month_year)
+    match = re.match(r'([a-zA-Z]+)(\d+)', month_year)
+    if match:
+        month = match.group(1)
+        year = match.group(2)
+
     last_li = ul.find_all('li')[-1]
     
     tables = last_li.find_all('table')
@@ -27,7 +36,7 @@ for ul in uls:
             if len(tds) >= 2:
                 date = tds[0].get_text()
                 holiday_name = tds[1].get_text()
-                holidays.append({'date': date, 'holiday': holiday_name})
+                holidays.append({'month': month, 'year': year, 'date': date, 'holiday': holiday_name})
 
 
 # Save the holidays data to a JSON file

@@ -4,6 +4,7 @@ import json
 import re
 from maps import month_map
 from arguments import get_year
+import os
 
 year = get_year()
 url = f"https://tanggalan.com/{year}"
@@ -43,8 +44,10 @@ for ul in uls:
                 holidays.append({'date': formatted_date, 'holiday': holiday_name})
 
 
-# Save the holidays data to a JSON file
-with open(f'{year}.json', 'w', encoding='utf-8') as json_file:
+os.makedirs('storages', exist_ok=True)
+
+file_path = f'storages/{year}.json'
+with open(file_path, 'w', encoding='utf-8') as json_file:
     json.dump(holidays, json_file, ensure_ascii=False, indent=4)
 
 print(f'Holidays data saved to {year}.json')

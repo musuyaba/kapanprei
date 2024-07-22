@@ -50,7 +50,13 @@ else:
                     
                     formatted_date = f'{extracted_year}-{month}-{date.zfill(2)}'
                     
-                    holidays.append({'date': formatted_date, 'holiday': holiday_name})
+                    collective_leave = 'cuti' in holiday_name.lower()
+                    
+                    holidays.append({
+                        'date': formatted_date,
+                        'holiday': holiday_name,
+                        'collective_leave': collective_leave
+                    })
 
     os.makedirs('storages', exist_ok=True)
 

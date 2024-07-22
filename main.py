@@ -10,7 +10,7 @@ from loggers import setup_logging
 
 def main():
     """
-    Main function to scrape holiday data for a specified year and save it to a JSON file.
+    Main function to scrape holiday data for a specified year and save it to monthly JSON files.
     Includes error handling and logging for various potential issues.
     """
     load_dotenv()
@@ -24,11 +24,8 @@ def main():
 
     year = get_year()
 
-    file_path = f'{storage_directory}/{year}.json'
-
-    if os.path.exists(file_path):
-        logging.info(f'File for year {year} already exists. Skipping request.')
-        return
+    year_directory = f'{storage_directory}/{year}'
+    os.makedirs(year_directory, exist_ok=True)
 
     url = f'{base_url}/{year}'
 
@@ -46,8 +43,6 @@ def main():
     except Exception as e:
         logging.error(f"Failed to parse HTML: {e}")
         return
-
-    holidays = []
 
     try:
         uls = soup.find_all('ul')
@@ -70,8 +65,15 @@ def main():
                     logging.warning(f"Month '{month_name}' not found in month_map")
                     continue
 
-            last_li = ul.find_all('li')[-1]
-            tables = last_li.find_all('table')
+                month_file_path = f'{year_directory}/{month}.json'
+                if os.path.exists(month_file_path):
+                    logging.info(f'File for {year}-{month} already exists. Skipping.')
+                    continue
+
+                holidays = []
+
+                last_li = ul.find_all('li')[-1]
+                tables = last_li.find_all('table')
         except Exception as e:
             logging.error(f"Failed to process <ul> element: {e}")
             continue
@@ -103,18 +105,12 @@ def main():
                     logging.error(f"Failed to process <tr> element: {e}")
                     continue
 
-    try:
-        os.makedirs(storage_directory, exist_ok=True)
-    except Exception as e:
-        logging.error(f"Failed to create storage directory: {e}")
-        return
-
-    try:
-        with open(file_path, 'w', encoding='utf-8') as json_file:
-            json.dump(holidays, json_file, ensure_ascii=False, indent=4)
-        logging.info(f'Holidays data saved to {file_path}')
-    except Exception as e:
-        logging.error(f"Failed to write JSON file: {e}")
+        try:
+            with open(month_file_path, 'w', encoding='utf-8') as json_file:
+                json.dump(holidays, json_file, ensure_ascii=False, indent=4)
+            logging.info(f'Holidays data for {year}-{month} saved to {month_file_path}')
+        except Exception as e:
+            logging.error(f"Failed to write JSON file: {e}")
 
     logging.info("Script finished")
 

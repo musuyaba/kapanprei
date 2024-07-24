@@ -92,15 +92,24 @@ def main():
                         date = tds[0].get_text().strip()
                         holiday_name = tds[1].get_text().strip()
 
-                        formatted_date = f'{extracted_year}-{month}-{date.zfill(2)}'
-
-                        collective_leave = 'cuti' in holiday_name.lower()
-
-                        holidays.append({
-                            'date': formatted_date,
-                            'holiday': holiday_name,
-                            'collective_leave': collective_leave
-                        })
+                        if '-' in date:
+                            start_day, end_day = map(int, date.split('-'))
+                            for day in range(start_day, end_day + 1):
+                                formatted_date = f'{extracted_year}-{month}-{str(day).zfill(2)}'
+                                collective_leave = 'cuti' in holiday_name.lower()
+                                holidays.append({
+                                    'date': formatted_date,
+                                    'holiday': holiday_name,
+                                    'collective_leave': collective_leave
+                                })
+                        else:
+                            formatted_date = f'{extracted_year}-{month}-{date.zfill(2)}'
+                            collective_leave = 'cuti' in holiday_name.lower()
+                            holidays.append({
+                                'date': formatted_date,
+                                'holiday': holiday_name,
+                                'collective_leave': collective_leave
+                            })
                 except Exception as e:
                     logging.error(f"Failed to process <tr> element: {e}")
                     continue
